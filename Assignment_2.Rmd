@@ -1,0 +1,28 @@
+---
+title: "Assignment_2"
+author: "Xinyi Wang"
+date: "9/19/2018"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Re-write the Lake Huron shiny application from last class using ggplot2.
+
+
+```{r eruptions, echo=FALSE}
+LakeHuron = as.vector(LakeHuron)
+time = seq(1875,1972,1)
+LakeHuron = data.frame(time,LakeHuron)
+library(ggplot2)
+ggplot(data = LakeHuron, aes(time,LakeHuron))+geom_line()
+```
+
+
+
+
+
+

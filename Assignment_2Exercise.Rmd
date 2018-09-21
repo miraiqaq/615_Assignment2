@@ -1,0 +1,81 @@
+---
+title: "Assignment_2Exercise"
+author: "Xinyi Wang"
+date: "9/19/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+###1.What happens if you facet on a continuous variable?
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = cyl, y = hwy)) +
+  facet_wrap(~ displ)
+```
+You'll get one facet for each unique value of the variable.
+
+###2.What do the empty cells in plot with facet_grid(drv ~ cyl) mean? How do they relate to this plot?
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = drv, y = cyl)) +
+  facet_grid(drv ~ cyl)
+```
+
+Empty cells in facet_grid imply that there were no rows with that combination of values in the original dataset. In this plot, rear wheel drive(r) with 4 or 5 cylinder(cyl) is missing, and 4 wheel drive(4) with 5 cylinder(cyl) is missing.
+
+###3.What plots does the following code make? What does . do?
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
+
+. acts a placeholder for no variable so that we can have a facet in only one dimension.
+
+###4.Take the first faceted plot in this section:
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+What are the advantages to using faceting instead of the colour aesthetic? What are the disadvantages? How might the balance change if you had a larger dataset?
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+
+Advantage of using faceting: Easier to examine the indivual classes.
+Disadvantage of using faceting: Easier to see how the classes are clustered overall.
+With larger datasets it’s more likely to use colour asethetic to see the overall clustering instead of the individual point clouds.
+
+###5.Read ?facet_wrap. What does nrow do? What does ncol do? What other options control the layout of the individual panels? Why doesn’t facet_grid() have nrow and ncol arguments?
+
+nrow: number of rows
+ncol: number of columns
+e.g. scales：should Scales be fixed ("fixed", the default), free ("free"), or free in one dimension ("free_x", "free_y").
+facet_grids() do not have these configuration because the rows and cols are determined by the specified attributes.
+
+###6.When using facet_grid() you should usually put the variable with more unique levels in the columns. Why?
+
+This will extend the plot vertically, where you typically have more viewing space. If you extend it horizontally, the plot will be compressed and harder to view.
+
+
+
+
+
+
+
+
+
+
+
+
