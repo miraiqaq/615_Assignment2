@@ -8,16 +8,13 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
+library(nycflights13)
+library(tidyverse)
+library(car)
+
 ```
 
-###1.What happens if you facet on a continuous variable?
-```{r}
-ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = cyl, y = hwy)) +
-  facet_wrap(~ displ)
-```
-You'll get one facet for each unique value of the variable.
-
+###3.5.1
 ###2.What do the empty cells in plot with facet_grid(drv ~ cyl) mean? How do they relate to this plot?
 ```{r}
 ggplot(data = mpg) + 
@@ -40,42 +37,99 @@ ggplot(data = mpg) +
 
 . acts a placeholder for no variable so that we can have a facet in only one dimension.
 
-###4.Take the first faceted plot in this section:
+###3.6.1
+###6.Recreate the R code necessary to generate the following graphs.
 ```{r}
-ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy)) + 
-  facet_wrap(~ class, nrow = 2)
-```
-What are the advantages to using faceting instead of the colour aesthetic? What are the disadvantages? How might the balance change if you had a larger dataset?
+ggplot(data = mpg, mapping = aes(x=displ,y=hwy)) +
+  geom_smooth(se = FALSE)+ 
+  geom_point()
 
+ggplot(data = mpg, mapping = aes(x=displ,y=hwy,group=drv)) +
+  geom_smooth(se = FALSE)+ 
+  geom_point()
+
+ggplot(data = mpg, mapping = aes(x=displ,y=hwy,group=drv)) +
+  geom_smooth(se = FALSE,aes(colour=drv))+ 
+  geom_point(aes(colour=drv))
+
+ggplot(data = mpg, mapping = aes(x=displ,y=hwy)) +
+  geom_smooth(se = FALSE)+ 
+  geom_point(aes(colour=drv))
+
+ggplot(data = mpg, mapping = aes(x=displ,y=hwy,group=drv)) +
+  geom_smooth(se = FALSE,aes(linetype=drv))+ 
+  geom_point(aes(colour=drv))
+
+ggplot(data = mpg, mapping = aes(x=displ,y=hwy)) +
+  geom_point(aes(colour=drv))
+```
+
+
+###5.2.4
+###1.Find all flights that:
+###1.1 Had an arrival delay of two or more hours.
 ```{r}
-ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+#View(flights)
+filter(flights, arr_delay>=120)
 ```
 
-Advantage of using faceting: Easier to examine the indivual classes.
-Disadvantage of using faceting: Easier to see how the classes are clustered overall.
-With larger datasets it’s more likely to use colour asethetic to see the overall clustering instead of the individual point clouds.
+###1.2 Flew to Houston (IAH or HOU).
+```{r}
+filter(flights, dest %in% c('IAH', 'HOU'))
+```
 
-###5.Read ?facet_wrap. What does nrow do? What does ncol do? What other options control the layout of the individual panels? Why doesn’t facet_grid() have nrow and ncol arguments?
+###1.3 Were operated by United, American, or Delta.
+```{r}
+filter(flights, carrier %in% c('UA', 'AA', 'DL'))
+```
 
-nrow: number of rows
-ncol: number of columns
-e.g. scales：should Scales be fixed ("fixed", the default), free ("free"), or free in one dimension ("free_x", "free_y").
-facet_grids() do not have these configuration because the rows and cols are determined by the specified attributes.
+###1.4 Departed in summer (July, August, and September).
+```{r}
+filter(flights, month %in% c(7, 8, 9))
+```
 
-###6.When using facet_grid() you should usually put the variable with more unique levels in the columns. Why?
+###1.5 Arrived more than two hours late, but didn’t leave late.
+```{r}
+filter(flights, arr_delay > 120, dep_delay <= 0)
+```
 
-This will extend the plot vertically, where you typically have more viewing space. If you extend it horizontally, the plot will be compressed and harder to view.
+###1.6 Were delayed by at least an hour, but made up over 30 minutes in flight.
+```{r}
+filter(flights, dep_delay >= 60, dep_delay-arr_delay > 30)
+```
 
+###1.7 Departed between midnight and 6am (inclusive).
+```{r}
+filter(flights, dep_time >= 2400 | dep_time <= 600)
+```
 
+###2.Another useful dplyr filtering helper is between(). What does it do? Can you use it to simplify the code needed to answer the previous challenges?
 
+Between is a shorter, faster way of testing two inequalities at once: it tests if its first argument is greater than or equal to its second, and less than or equal to its third.
+```{r}
+filter(flights, !between(dep_time, 601, 2359))
+```
 
+###3.How many flights have a missing dep_time? What other variables are missing? What might these rows represent?
+```{r}
+sum(is.na(flights$dep_time))
+map_dbl(flights, ~ sum(is.na(.x)))
+#summary(flights)
+```
+8255 flights have a missing dep_time, 8255 have a missing dep_delay, 8713 have a missing arr_time, 9430 have a missing arr_delay, and 9430 have a missing air_time.
 
+Those rows represent that some flights are failed to depart or arrive.
 
+###4.Why is NA ^ 0 not missing? Why is NA | TRUE not missing? Why is FALSE & NA not missing? Can you figure out the general rule? (NA * 0 is a tricky counterexample!)
 
+NA ^ 0 not missing because anything to the power of 0 is 1.
 
+NA | TRUE not missing because the whole expression means NA or TRUE, it will return TRUE.(one of the terms is true, so the expression evaluates to TRUE)
 
+FALSE & NA not missing because the whole expression means FALSE and NA, it will return FLASE.(one of the terms is false, so the expression evaluates to FALSE)
+
+The general rule is that whenever there is a logical expressions, if one can be tested, then the result shouldn't be NA. And any operation that the results is determined, regardless of the number, the inputting NA does not affect the result.
+NA*0 could be argued to be because the NA could represent Inf, and Inf*0 is NaN (Not a Number), rather than NA. 
 
 
 
